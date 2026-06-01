@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Álbum Copa 2026</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div>
+        <p class="eyebrow">MVP Checklist · v1.5</p>
+        <h1>Álbum Copa 2026</h1>
+        <p class="subtitle">Controle suas figurinhas, faltantes e repetidas com uma interface mais clean, leve e organizada.</p>
+      </div>
+      <div class="header-actions">
+        <button id="btnRefresh" class="btn secondary">Atualizar</button>
+        <button id="btnReset" class="btn danger">Resetar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="dashboard-grid">
+      <article class="card stat">
+        <span>Total</span>
+        <strong id="statTotal">-</strong>
+      </article>
+      <article class="card stat success">
+        <span>Tenho</span>
+        <strong id="statOwned">-</strong>
+      </article>
+      <article class="card stat warning">
+        <span>Faltam</span>
+        <strong id="statMissing">-</strong>
+      </article>
+      <article class="card stat accent">
+        <span>Repetidas</span>
+        <strong id="statDuplicates">-</strong>
+      </article>
+      <article class="card stat special">
+        <span>Esp. faltam</span>
+        <strong id="statSpecialMissing">-</strong>
+      </article>
+    </section>
+
+    <section class="card progress-card">
+      <div class="row-between compact-mobile">
+        <div>
+          <h2>Progresso do álbum</h2>
+          <p id="progressText">Carregando...</p>
+        </div>
+        <strong id="progressValue">0%</strong>
+      </div>
+      <div class="progress-bar">
+        <div id="progressFill"></div>
+      </div>
+    </section>
+
+    <section class="tabs card">
+      <div class="tab-buttons">
+        <button class="tab active" data-tab="checklist">Checklist</button>
+        <button class="tab" data-tab="selections">Seleções</button>
+        <button class="tab" data-tab="missing">Faltantes</button>
+        <button class="tab" data-tab="duplicates">Repetidas</button>
+        <button class="tab" data-tab="pages">Páginas</button>
+        <button class="tab" data-tab="scanner">Scanner</button>
+        <button class="tab" data-tab="import">Importar CSV</button>
+      </div>
+
+      <div id="tab-checklist" class="tab-panel active">
+        <div class="section-title-line">
+          <div>
+            <h2>Checklist</h2>
+            <p>Marque cada figurinha como falta, tenho ou repetida.</p>
+          </div>
+          <span id="checklistCount" class="pill">-</span>
+        </div>
+
+        <div class="filters">
+          <input id="searchInput" type="search" placeholder="Buscar código, seleção ou grupo..." />
+          <select id="statusFilter" aria-label="Filtrar por status">
+            <option value="">Todos</option>
+            <option value="Need">Faltam</option>
+            <option value="Got">Tenho</option>
+            <option value="Duplicate">Repetidas</option>
+          </select>
+          <select id="specialFilter" aria-label="Filtrar por tipo">
+            <option value="">Todos os tipos</option>
+            <option value="true">Especiais</option>
+            <option value="false">Base</option>
+          </select>
+          <input id="pageFilter" type="number" min="1" placeholder="Página" />
+          <button id="btnClearFilters" class="btn secondary">Limpar</button>
+        </div>
+        <div id="stickerGrid" class="sticker-grid"></div>
+      </div>
+
+
+      <div id="tab-selections" class="tab-panel">
+        <div class="section-title-line">
+          <div>
+            <h2>Seleções da Copa 2026</h2>
+            <p>Cada seleção possui 20 figurinhas. Use os cards para abrir rapidamente o checklist ou o scanner daquela seleção.</p>
+          </div>
+          <span id="selectionsCount" class="pill">-</span>
+        </div>
+
+        <div class="filters selection-filters">
+          <input id="selectionSearchInput" type="search" placeholder="Buscar seleção, grupo ou código. Ex: Brasil, Grupo C, BRA..." />
+          <select id="selectionProgressFilter" aria-label="Filtrar seleções por progresso">
+            <option value="">Todas as seleções</option>
+            <option value="missing">Com faltantes</option>
+            <option value="complete">Completas</option>
+            <option value="duplicates">Com repetidas</option>
+          </select>
+          <button id="btnReloadSelections" class="btn secondary">Recarregar seleções</button>
+        </div>
+
+        <div id="selectionsGrid" class="selection-group-list empty-state">Carregando seleções...</div>
+      </div>
+
+      <div id="tab-missing" class="tab-panel">
+        <div class="row-between actions-line">
+          <div>
+            <h2>Lista de faltantes</h2>
+            <p>Use essa lista para compra ou troca. Agora é possível copiar, exportar e compartilhar.</p>
+          </div>
+          <div class="header-actions wrap right-actions">
+            <select id="missingGroupMode" class="small-select" aria-label="Agrupar faltantes">
+              <option value="page">Agrupar por página</option>
+              <option value="country">Agrupar por país/grupo</option>
+              <option value="type">Agrupar por tipo</option>
+            </select>
+            <button id="btnExportMissing" class="btn secondary">Exportar CSV</button>
+            <button id="btnCopyMissing" class="btn secondary">Copiar lista</button>
+            <button id="btnWhatsApp" class="btn primary">WhatsApp</button>
+          </div>
+        </div>
+        <div id="missingList" class="grouped-list"></div>
+      </div>
+
+      <div id="tab-duplicates" class="tab-panel">
+        <div class="section-title-line">
+          <div>
+            <h2>Repetidas para troca</h2>
+            <p>Figurinhas marcadas como repetidas aparecem aqui.</p>
+          </div>
+          <span id="duplicatesCount" class="pill">-</span>
+        </div>
+        <div id="duplicatesList" class="grouped-list"></div>
+      </div>
+
+      <div id="tab-pages" class="tab-panel">
+        <div class="section-title-line">
+          <div>
+            <h2>Visão por página</h2>
+            <p>Acompanhe o progresso de cada página do álbum e abra rapidamente o scanner ou checklist.</p>
+          </div>
+          <span id="pagesCount" class="pill">-</span>
+        </div>
+
+        <div class="filters pages-filters">
+          <input id="pageSearchInput" type="search" placeholder="Buscar página, país/grupo ou código..." />
+          <select id="pageProgressFilter" aria-label="Filtrar páginas por progresso">
+            <option value="">Todas as páginas</option>
+            <option value="missing">Com faltantes</option>
+            <option value="complete">Completas</option>
+            <option value="duplicates">Com repetidas</option>
+          </select>
+          <button id="btnReloadPages" class="btn secondary">Recarregar páginas</button>
+        </div>
+
+        <div id="pagesGrid" class="pages-grid empty-state">Carregando páginas...</div>
+      </div>
+
+      <div id="tab-scanner" class="tab-panel">
+        <div class="scanner-layout">
+          <div>
+            <h2>Scanner visual da página</h2>
+            <p>
+              Capture a foto da página, carregue os espaços e use a grade para selecionar rapidamente o que está preenchido.
+              A detecção automática por imagem fica preparada para a próxima fase.
+            </p>
+
+            <div class="scanner-card-soft">
+              <label for="scanPageNumber">Página / seleção do álbum</label>
+              <div class="inline-form scanner-page-form">
+                <button id="btnPrevScanPage" class="btn secondary" title="Página anterior">◀</button>
+                <input id="scanPageNumber" type="number" min="1" placeholder="Ex: 12" />
+                <button id="btnNextScanPage" class="btn secondary" title="Próxima página">▶</button>
+                <button id="btnLoadScanPage" class="btn primary">Carregar página</button>
+                <button id="btnOpenPageChecklist" class="btn secondary">Abrir checklist</button>
+              </div>
+
+              <div class="scan-page-stats">
+                <div><span>Total</span><strong id="scanStatTotal">-</strong></div>
+                <div><span>Tenho</span><strong id="scanStatOwned">-</strong></div>
+                <div><span>Faltam</span><strong id="scanStatMissing">-</strong></div>
+                <div><span>Repetidas</span><strong id="scanStatDuplicates">-</strong></div>
+              </div>
+
+              <div class="scanner-selection-tools">
+                <button id="btnSelectAllScanSlots" class="btn secondary">Selecionar todos</button>
+                <button id="btnSelectMissingScanSlots" class="btn secondary">Selecionar faltantes</button>
+                <button id="btnSelectOwnedScanSlots" class="btn secondary">Selecionar já tenho</button>
+                <button id="btnInvertScanSelection" class="btn secondary">Inverter seleção</button>
+                <button id="btnClearScanSelection" class="btn secondary">Limpar seleção</button>
+              </div>
+
+              <div class="scanner-actions-grid">
+                <button id="btnMarkSelectedOwned" class="btn primary">Selecionadas: Tenho</button>
+                <button id="btnMarkSelectedDuplicate" class="btn secondary">Selecionadas: Repetida</button>
+                <button id="btnMarkSelectedMissing" class="btn danger">Selecionadas: Falta</button>
+                <button id="btnMarkPageOwned" class="btn primary">Página inteira: Tenho</button>
+              </div>
+
+              <p class="hint">Dica: selecione “faltantes” e depois marque como Tenho quando uma página estiver parcialmente preenchida.</p>
+            </div>
+
+            <div class="header-actions wrap">
+              <button id="btnStartCamera" class="btn primary">Abrir câmera</button>
+              <button id="btnTakePhoto" class="btn secondary">Capturar foto</button>
+              <button id="btnStopCamera" class="btn danger">Fechar câmera</button>
+            </div>
+          </div>
+          <div class="camera-box">
+            <video id="cameraVideo" autoplay playsinline></video>
+            <canvas id="cameraCanvas"></canvas>
+            <div id="cameraPlaceholder" class="camera-placeholder">A câmera ou a foto capturada aparecerá aqui.</div>
+          </div>
+        </div>
+
+        <div class="scan-page-panel">
+          <div class="section-title-line">
+            <div>
+              <h3>Grade visual da página</h3>
+              <p>Clique nos espaços para selecionar. Use os botões acima para marcar em lote.</p>
+            </div>
+            <span id="scanSummary" class="pill">Nenhuma página carregada</span>
+          </div>
+          <div id="scanSlotGrid" class="scan-slot-grid empty">Informe a página/seleção e clique em “Carregar página”.</div>
+        </div>
+      </div>
+
+      <div id="tab-import" class="tab-panel">
+        <div class="import-layout">
+          <div>
+            <h2>Importar lista real do álbum</h2>
+            <p>
+              Quando você tiver a lista real das figurinhas, importe um arquivo CSV e a base genérica será substituída.
+              O app vai manter a mesma lógica de checklist, faltantes e repetidas.
+            </p>
+
+            <div class="csv-format card-lite">
+              <strong>Colunas aceitas:</strong>
+              <code>code, number, country, groupName, pageNumber, slotNumber, isSpecial</code>
+              <p class="hint">Também aceito cabeçalhos em português como código, número, país, grupo, página, posição e especial.</p>
+            </div>
+
+            <div class="header-actions wrap import-actions">
+              <input id="csvInput" type="file" accept=".csv,text/csv" />
+              <button id="btnDownloadTemplate" class="btn secondary">Baixar modelo CSV</button>
+              <button id="btnDownloadBase" class="btn secondary">Baixar base atual</button>
+              <button id="btnImportCsv" class="btn primary">Importar CSV</button>
+            </div>
+          </div>
+
+          <div class="preview-card">
+            <div class="section-title-line">
+              <h3>Prévia</h3>
+              <span id="importCount" class="pill">Nenhum arquivo</span>
+            </div>
+            <div id="importPreview" class="preview-table empty">Selecione um CSV para visualizar as primeiras linhas.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
