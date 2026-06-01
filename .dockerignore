@@ -1,0 +1,10 @@
+.git
+.gitignore
+.vscode
+**/bin
+**/obj
+**/*.db
+**/*.db-shm
+**/*.db-wal
+*.log
+README.md

@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = (window.ALBUM_COPA_API_BASE || 'http://localhost:5000/api').replace(/\/+$/, '');
 
 const state = {
   stickers: [],

@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://localhost:5000");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=album-copa-2026.db"));
@@ -35,7 +36,7 @@ using (var scope = app.Services.CreateScope())
 app.MapGet("/", () => Results.Ok(new
 {
     app = "Album Copa 2026 API",
-    version = "1.4",
+    version = "1.6",
     status = "online",
     endpoints = new[]
     {
